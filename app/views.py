@@ -3,6 +3,8 @@ from app.models import Reciepe
 from django.core.mail import EmailMessage
 from django.contrib import messages
 
+from django.contrib.auth.models import User
+
 # Create your views here.
 def home(request):
     data = Reciepe.objects.all()
@@ -69,3 +71,29 @@ def search(request):
     context = {"show":get}
 
     return render( request ,"home.html",context)
+
+def login_page(request):
+    return render(request, 'login.html')
+
+def signup_page(request):
+    return render(request, 'signup.html')
+
+def add_data(request):
+    if request.method == "POST":
+        full_name = request.POST["fullname"]
+        username = request.POST["username"]
+        email = request.POST["email"]
+        password = request.POST["password"]
+        cpassword = request.POST["cpassword"]
+
+        # Checking the fields are empty
+
+        if password != cpassword:
+            messages.warning(request , "Password doesn't Match")
+            return redirect('signup')
+
+        else:
+          val = User.objects.create_user(username=username , first_name = full_name , email=email , password=password) 
+          val.save()       
+          messages.success(request,'Account Created Successfully')
+          return redirect("login")
